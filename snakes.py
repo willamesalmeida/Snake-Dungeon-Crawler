@@ -268,10 +268,12 @@ def generate_dungeon(current_level):
     
     enemies[:] = [] #limpa a lista sem criar uma nova (apaga inimigos do level anterior para poder criar do proximo )
     for _ in range(2 + current_level): #logicas para quantas vezes vai rodar o for e criar inimigos (range(2 + currenteLevel))
-        while True:
+        while True: #serve para forçar a gerera os apwan em lugares posições boas
             spawn_x = random.randint(0, GRID_WIDTH - 1)
             spawn_y = random.randint(0, GRID_HEIGHT - 1)
+            #condições para o inimigo nascer precisa ser chão, não nascer na parte da cobrinha e nao pode nascer no portal
             if dungeon_map[spawn_x][spawn_y] == 0 and (spawn_x, spawn_y) not in hero_segments and (spawn_x, spawn_y) != exit_portal:
+                #adiciona um inimigo passando as coordenadas para x e y e escolhendo seu current face (lado para qual olha basicamente) aleatoriamente
                 enemies.append((spawn_x, spawn_y, random.choice(["left", "right"])))
                 break
 
