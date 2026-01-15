@@ -202,13 +202,18 @@ def update_enemies():
 
 def generate_dungeon(current_level):
     global dungeon_map, exit_portal, enemies, hero_segments
+    #gera a matriz com 1 
+    #list comprehension facilida a troca dos valores de 1 para zero na hora de gera as salas
     dungeon_map = [[1 for _ in range(GRID_HEIGHT)] for _ in range(GRID_WIDTH)]
     rooms_list = []
     
+    #faz a criação da salas e verifica a possibilidade de cria-las
     for _ in range(50):
         if len(rooms_list) >= 3 + (current_level // 2): break
         room_width = random.randint(3, 6)
         room_height = random.randint(3, 5)
+
+        # usado o 1 para ter sempre uma boda da masmorra na tela 
         room_x = random.randint(1, GRID_WIDTH - room_width - 1)
         room_y = random.randint(1, GRID_HEIGHT - room_height - 1)
 
@@ -227,13 +232,20 @@ def generate_dungeon(current_level):
         #     continue
 
 
-        # alternativa melhor para o codigo acima          
+        # alternativa melhor para o codigo acima 
+        #verifica de ao menos uma dessas é verdadeira
+        #verifica se as salas antigas e novas não colidem ou saem fora da tela
         if any(not (room_x + room_width < other_x or room_x > other_x + other_w or 
                     room_y + room_height < other_y or room_y > other_y + other_h) 
                for other_x, other_y, other_w, other_h in rooms_list): 
             continue
-            
+        
+        #pega todos os valores que foram criados das salas, altura, largura, onde começa x e onde termina y 
         rooms_list.append((room_x, room_y, room_width, room_height))
+
+        # aqui pega o valor e faz por exe: começa do 10 e tamnaho 5 entao soma 10 + 5 para o range não engolir 1 
+        # todos os valores 1 nesse range é transformado em 0
+        # altura, largura, inicio e fim
         for tile_x in range(room_x, room_x + room_width):
             for tile_y in range(room_y, room_y + room_height): 
                 dungeon_map[tile_x][tile_y] = 0
@@ -241,16 +253,21 @@ def generate_dungeon(current_level):
     for index in range(len(rooms_list) - 1):
         x1, y1 = rooms_list[index][0] + rooms_list[index][2]//2, rooms_list[index][1] + rooms_list[index][3]//2
         x2, y2 = rooms_list[index+1][0] + rooms_list[index+1][2]//2, rooms_list[index+1][1] + rooms_list[index+1][3]//2
-        for corridor_x in range(min(x1, x2), max(x1, x2) + 1): dungeon_map[corridor_x][y1] = 0
-        for corridor_y in range(min(y1, y2), max(y1, y2) + 1): dungeon_map[x2][corridor_y] = 0
+
+        #cria os tuneis entre uma sla e outra e o uso do for com index + 1 garante que todas as salas estejam conectasa e não existam areas impossiveis de alvançar
+        #conecta do x da primeira sla ao x da segunda 
+        for corridor_x in range(min(x1, x2), max(x1, x2) + 1): 
+            dungeon_map[corridor_x][y1] = 0
+        for corridor_y in range(min(y1, y2), max(y1, y2) + 1): 
+            dungeon_map[x2][corridor_y] = 0
 
     start_x, start_y = rooms_list[0][0], rooms_list[0][1]
     hero_segments[:] = [(start_x + 2, start_y + 1), (start_x + 1, start_y + 1), (start_x, start_y + 1)]
     
     exit_portal = (rooms_list[-1][0] + rooms_list[-1][2]//2, rooms_list[-1][1] + rooms_list[-1][3]//2)
     
-    enemies[:] = []
-    for _ in range(2 + current_level):
+    enemies[:] = [] #limpa a lista sem criar uma nova (apaga inimigos do level anterior para poder criar do proximo )
+    for _ in range(2 + current_level): #logicas para quantas vezes vai rodar o for e criar inimigos (range(2 + currenteLevel))
         while True:
             spawn_x = random.randint(0, GRID_WIDTH - 1)
             spawn_y = random.randint(0, GRID_HEIGHT - 1)
